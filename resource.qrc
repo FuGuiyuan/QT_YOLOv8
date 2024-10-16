@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/yolov5LOGO.png</file>
+        <file>resources/yolov8LOGO.png</file>
+    </qresource>
+</RCC>
