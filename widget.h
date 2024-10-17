@@ -17,6 +17,9 @@ public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
 
+// signals:
+//     void mainwidgetToYolov5Widget();
+
 private:
     Ui::Widget *ui;
 };

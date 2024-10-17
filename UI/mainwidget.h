@@ -11,6 +11,10 @@ public:
 
     void initUI();
 
+signals:
+    void ToYolov5Widget();
+    void ToYolov8Widget();
+
 private:
     QToolButton* ToYolov5Btn;
     QToolButton* ToYolov8Btn;
