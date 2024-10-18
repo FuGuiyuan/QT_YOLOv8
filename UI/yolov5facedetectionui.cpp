@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QSplitter>
+#include <QFileDialog>
 YOLOv5FaceDetectionUI::YOLOv5FaceDetectionUI() {
     qDebug()<<"YOLOv5FaceDetectionUI 构造函数";
     initUI();
@@ -15,10 +16,11 @@ void YOLOv5FaceDetectionUI::initUI()
 
 
     imgFileBtn = new QRadioButton("图片文件");
+    imgFileBtn->setChecked(true);
     videoFileBtn = new QRadioButton("视频文件");
     dataFilePath = new QLineEdit();
-    dataFilePath->isReadOnly();
-    chooseImgBtn =new QPushButton();
+    dataFilePath->setEnabled(false);
+    chooseImgBtn =new QPushButton("选择图片");
 
     QGroupBox* dataBox = new QGroupBox("数据");
     QHBoxLayout* hbox1 = new QHBoxLayout;
@@ -37,17 +39,23 @@ void YOLOv5FaceDetectionUI::initUI()
     chooseConfigBtn = new QPushButton("选择配置文件");
 
     QGroupBox* modelBox = new QGroupBox("模型");
-    QHBoxLayout* hbox2 = new QHBoxLayout;
+    QVBoxLayout* vbox2 = new QVBoxLayout();
+    QHBoxLayout* hbox2 = new QHBoxLayout();
+    QHBoxLayout* hbox5 = new QHBoxLayout();
     hbox2->addWidget(new QLabel("权重文件"));
     hbox2->addWidget(weightFilePath);
     hbox2->addWidget(chooseWeightBtn);
-    hbox2->addWidget(new QLabel("配置文件"));
-    hbox2->addWidget(configFilePath);
-    hbox2->addWidget(chooseConfigBtn);
-    modelBox->setLayout(hbox2);
+    hbox5->addWidget(new QLabel("配置文件"));
+    hbox5->addWidget(configFilePath);
+    hbox5->addWidget(chooseConfigBtn);
+    vbox2->addLayout(hbox2);
+    vbox2->addLayout(hbox5);
+    modelBox->setLayout(vbox2);
 
     showFPSCheck = new QCheckBox("FPS");
     showScoreCheck = new QCheckBox("置信度");
+    showFPSCheck->setChecked(true);
+    showScoreCheck->setChecked(true);
     scoreSpinBox = new QDoubleSpinBox();
     scoreSpinBox->setRange(0,1);
     scoreSpinBox->setSingleStep(0.01);
@@ -79,10 +87,10 @@ void YOLOv5FaceDetectionUI::initUI()
 
 
 
-    QPixmap  pixmap("C:/Users/15648/Pictures/Saved Pictures/sp_noise.png");
+    QPixmap  pixmap(":/resources/woman.png");
     imgLabel=new QLabel();
     imgLabel->setAlignment(Qt::AlignCenter);
-    imgLabel->setStyleSheet("background-color:rgb(0,0,0)");
+    imgLabel->setStyleSheet("background-color:rgb(127,127,127)");
     imgLabel->setPixmap(pixmap);
     //imgLabel->setFixedSize(800,550);
 
@@ -101,4 +109,54 @@ void YOLOv5FaceDetectionUI::initUI()
     QHBoxLayout* hboxmain =new QHBoxLayout;
     hboxmain->addWidget(splitter);
     this->setLayout(hboxmain);
+
+    connect(chooseImgBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectImg);
+    connect(chooseWeightBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectWeightFile);
+    connect(chooseConfigBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectConfigFile);
+
 }
+
+void YOLOv5FaceDetectionUI::selectImg()
+{
+    //图片文件被选中
+    qDebug()<<"select Image...";
+    if(imgFileBtn->isChecked())
+    {
+        QString Imgpath = QFileDialog::getOpenFileName(this,"选择图片",R"(C:\Users\15648\Pictures\Saved Pictures)",tr("Images(*.png *.jpg);"));
+        if(Imgpath.isEmpty())
+        {
+            qDebug()<<"Image path is empty...";
+            return ;
+        }
+        QPixmap pixmap(Imgpath);
+        imgLabel->setPixmap(pixmap);
+        dataFilePath->setText(Imgpath);
+    }
+
+    //视频文件被选中
+
+
+}
+
+void YOLOv5FaceDetectionUI::selectWeightFile()
+{
+    QString weigthPath = QFileDialog::getOpenFileName(this, "选择模型权重文件", "C:/Users/15648/Desktop/QT/opencv/opencv_tutorial_data-master/opencv_tutorial_data-master/models/face_detector", tr("Weights(*.pb);"));
+    if(weigthPath.isEmpty())
+    {
+        qDebug()<<"weigthPath is empty...";
+        return ;
+    }
+    weightFilePath->setText(weigthPath);
+}
+
+void YOLOv5FaceDetectionUI::selectConfigFile()
+{
+    QString configPath = QFileDialog::getOpenFileName(this, "选择模型配置文件", "C:/Users/15648/Desktop/QT/opencv/opencv_tutorial_data-master/opencv_tutorial_data-master/models/face_detector", tr("Config(*.pbtxt);"));
+    if(configPath.isEmpty())
+    {
+        qDebug()<<"configPath is empty...";
+        return ;
+    }
+    configFilePath->setText(configPath);
+}
+

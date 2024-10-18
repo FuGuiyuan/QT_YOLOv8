@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>resources/yolov5LOGO.png</file>
         <file>resources/yolov8LOGO.png</file>
+        <file>resources/face.png</file>
+        <file>resources/woman.png</file>
     </qresource>
 </RCC>

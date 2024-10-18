@@ -15,6 +15,13 @@ public:
     YOLOv5FaceDetectionUI();
 
     void initUI();
+public slots:
+
+    void selectImg();
+
+    void selectWeightFile();
+
+    void selectConfigFile();
 
 
 private:
