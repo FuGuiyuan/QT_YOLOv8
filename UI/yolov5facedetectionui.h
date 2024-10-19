@@ -37,6 +37,7 @@ private:
 
     QCheckBox* showFPSCheck{nullptr};
     QCheckBox* showScoreCheck{nullptr};
+    QDoubleSpinBox* configSpinBox{nullptr};
     QDoubleSpinBox* scoreSpinBox{nullptr};
 
     QLabel* imgLabel{nullptr};

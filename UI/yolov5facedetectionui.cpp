@@ -60,14 +60,27 @@ void YOLOv5FaceDetectionUI::initUI()
     scoreSpinBox->setRange(0,1);
     scoreSpinBox->setSingleStep(0.01);
     scoreSpinBox->setValue(0.5);
+    configSpinBox = new QDoubleSpinBox();
+    configSpinBox->setRange(0,1);
+    configSpinBox->setSingleStep(0.01);
+    configSpinBox->setValue(0.5);
 
     QGroupBox* showBox = new QGroupBox("模型");
+    QVBoxLayout* vbox3 = new QVBoxLayout();
     QHBoxLayout* hbox3 = new QHBoxLayout;
     hbox3->addWidget(showFPSCheck);
     hbox3->addWidget(showScoreCheck);
-    hbox3->addWidget(new QLabel("得分:"));
-    hbox3->addWidget(scoreSpinBox);
-    showBox->setLayout(hbox3);
+
+    QHBoxLayout* hbox6 = new QHBoxLayout;
+    hbox6->addWidget(new QLabel("置信:"));
+    hbox6->addWidget(configSpinBox);
+    QHBoxLayout* hbox7 = new QHBoxLayout;
+    hbox7->addWidget(new QLabel("得分:"));
+    hbox7->addWidget(scoreSpinBox);
+    vbox3->addLayout(hbox3);
+    vbox3->addLayout(hbox6);
+    vbox3->addLayout(hbox7);
+    showBox->setLayout(vbox3);
 
     runBtn = new QPushButton("运行");
     QHBoxLayout *hbox4 = new QHBoxLayout();
