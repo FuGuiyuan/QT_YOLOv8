@@ -17,6 +17,7 @@ SOURCES += \
     widget.cpp
 
 HEADERS += \
+    Algo/AlgoInterface.h \
     Algo/datasettings.h \
     Algo/yolov5detector.h \
     UI/mainwidget.h \
@@ -38,3 +39,10 @@ msvc:QMAKE_CXXFLAGS += -execution-charset:utf-8
 msvc:QMAKE_CXXFLAGS += -source-charset:utf-8
 
 DISTFILES +=
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../opencv-4.8.0/opencv/build/x64/vc16/lib/ -lopencv_world480
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../opencv-4.8.0/opencv/build/x64/vc16/lib/ -lopencv_world480d
+else:unix: LIBS += -L$$PWD/../../../opencv-4.8.0/opencv/build/x64/vc16/lib/ -lopencv_world480
+
+INCLUDEPATH += $$PWD/../../../opencv-4.8.0/opencv/build/include
+DEPENDPATH += $$PWD/../../../opencv-4.8.0/opencv/build/include
