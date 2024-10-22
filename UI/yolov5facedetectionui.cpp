@@ -6,6 +6,8 @@
 #include <QVBoxLayout>
 #include <QSplitter>
 #include <QFileDialog>
+#include "Algo/datasettings.h"
+
 YOLOv5FaceDetectionUI::YOLOv5FaceDetectionUI() {
     qDebug()<<"YOLOv5FaceDetectionUI 构造函数";
     initUI();
@@ -65,7 +67,7 @@ void YOLOv5FaceDetectionUI::initUI()
     configSpinBox->setSingleStep(0.01);
     configSpinBox->setValue(0.5);
 
-    QGroupBox* showBox = new QGroupBox("模型");
+    QGroupBox* showBox = new QGroupBox("显示");
     QVBoxLayout* vbox3 = new QVBoxLayout();
     QHBoxLayout* hbox3 = new QHBoxLayout;
     hbox3->addWidget(showFPSCheck);
@@ -126,7 +128,7 @@ void YOLOv5FaceDetectionUI::initUI()
     connect(chooseImgBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectImg);
     connect(chooseWeightBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectWeightFile);
     connect(chooseConfigBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectConfigFile);
-
+    connect(runBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::runYoloDetection);
 }
 
 void YOLOv5FaceDetectionUI::selectImg()
@@ -173,3 +175,19 @@ void YOLOv5FaceDetectionUI::selectConfigFile()
     configFilePath->setText(configPath);
 }
 
+//点击按钮 开始检测
+void YOLOv5FaceDetectionUI::runYoloDetection()
+{
+    dataSettings DS(DETECT_ALGO_TYPE::YOLOv5_DNN);
+    DS.setData_path(dataFilePath->text().toStdString());
+    DS.setWeight_file(weightFilePath->text().toStdString());
+    DS.setConfig_file(configFilePath->text().toStdString());
+    DS.setShow_fps(showFPSCheck->isChecked());
+    DS.setShow_score(showScoreCheck->isChecked());
+    DS.setConf(configSpinBox->value());
+    DS.setT_score(scoreSpinBox->value());
+    DS.dumpSettings(); //记录到yml文件里
+
+
+
+}

@@ -1,6 +1,9 @@
 #include "datasettings.h"
 
-dataSettings::dataSettings() {}
+dataSettings::dataSettings(DETECT_ALGO_TYPE Name)
+{
+    this->name = Name;
+}
 
 std::string dataSettings::getData_path() const
 {

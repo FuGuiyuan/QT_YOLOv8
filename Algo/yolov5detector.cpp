@@ -70,50 +70,74 @@ void YOLOv5Detector::infer_frame(cv::Mat &frame)
     cv::Mat preds = net.forward();
 
     // 后处理, 1x25200x85
+    //25200代表着检测框（先验框）的数量
+    // 25200 = （20 * 20 + 40 * 40 + 80 * 80） * 3，
+    //其中20 * 20， 40 * 40， 80 * 80分别是提取深、中、浅层的网格大小，浅层用来预测小目标
+    //深层用来预测大目标；* 3是因为每个点有三种anchor锚框
+    //  85  ，前面5个数值分别是：cx, cy, w, h, score（框里是否含有目标：边界框置信度!!用于判断每一个特征点是否包含物体） 后面 80个是MSCOCO各个类别得分（类别置信度）。
     // 对输出结果进行解码，获取每个检测结果的边界框坐标
+
     //det_output复制preds的结果  25200x85
     cv::Mat det_output(preds.size[1], preds.size[2], CV_32F, preds.ptr<float>());
-    std::vector<cv::Rect> boxes;
-    std::vector<int> classIds;
-    std::vector<float> confidences;
+    std::vector<cv::Rect> boxes; //记录边界框
+    std::vector<int> classIds;//
+    std::vector<float> confidences;//记录得分
+
+    //遍历25200行 也就是25200个先验框
     for (int i = 0; i < det_output.rows; i++) {
+
+        //访问矩阵中特定位置的元素，i是行索引，4是列索引。
+        //这里是访问第五列 ，边界框置信度
         float confidence = det_output.at<float>(i, 4);
-        // 如果置信度小于设定的值直接放弃
+        // 如果边界框置信度小于设定的值直接放弃
         if (confidence < this->conf) {
             continue;
         }
-        cv::Mat classes_scores = det_output.row(i).colRange(5, preds.size[2]);
-        cv::Point classIdPoint;
-        double score;
-        minMaxLoc(classes_scores, 0, &score, 0, &classIdPoint);
+        //否则，边界框置信度大于设定的值 说明框内有物体
+        //各个种类得分 第5-85
+        cv::Mat classes_scores = det_output.row(i).colRange(5, preds.size[2]); //截取5到85的范围
+        cv::Point classIdPoint; //cv::Point 是一个用于表示二维空间点的类 这里用来记录类别里最大值所在的位置坐标
+        double score; //用来记录最大值是几
 
-        // 得分？ 0～1之间
+        //寻找数组或矩阵中的最小值和最大值
+        minMaxLoc(classes_scores, //输入参数，代表需要搜索的数组或矩阵
+                  0, //输出参数，用于存储找到的最小值
+                  &score, //输出参数，用于存储找到的最大值
+                  0, //输出参数，用于记录最小值所在的位置（坐标）
+                  &classIdPoint); //输出参数，用于记录最大值所在的位置（坐标）
+
+        // 类别置信度得分 0～1之间 如果大于设定的值
         if (score > this->score)
         {
+            //记录边界框x,y,w,h
             float cx = det_output.at<float>(i, 0);
             float cy = det_output.at<float>(i, 1);
             float ow = det_output.at<float>(i, 2);
             float oh = det_output.at<float>(i, 3);
+            //等比例还原边界框大小
             int x = static_cast<int>((cx - 0.5 * ow) * x_factor);
             int y = static_cast<int>((cy - 0.5 * oh) * y_factor);
             int width = static_cast<int>(ow * x_factor);
             int height = static_cast<int>(oh * y_factor);
+            //存放到box里
             cv::Rect box;
             box.x = x;
             box.y = y;
             box.width = width;
             box.height = height;
-
+            //记录到boxes数组里
             boxes.push_back(box);
+            //记录类别里最大值所在的位置坐标  有用到！！！！
             classIds.push_back(classIdPoint.x);
+            //记录得分
             confidences.push_back(score);
         }
     }
 
-    // NMS  去掉多余的框 选择得分最大的框
-    std::vector<int> indexes; // 输出保留的检测框的索引
 
-    // 0.25得分阈值  0.50 NMS阈值
+    std::vector<int> indexes; // 记录输出保留的检测框的索引
+    // NMS  去掉多余的框 选择得分最大的框
+    // 0.25检测框得分阈值  0.50 NMS阈值
     cv::dnn::NMSBoxes(boxes,  // 输入的检测框
                       confidences, // 与检测框对应的置信度
                       0.25,  // 置信度阈值，低于此值的检测框将被丢弃
@@ -123,16 +147,35 @@ void YOLOv5Detector::infer_frame(cv::Mat &frame)
     for (size_t i = 0; i < indexes.size(); i++) {
         int index = indexes[i];
         int idx = classIds[index];
-        cv::rectangle(frame, boxes[index], cv::Scalar(0, 0, 255), 2, 8);
-        cv::rectangle(frame, cv::Point(boxes[index].tl().x, boxes[index].tl().y - 20),
-                      cv::Point(boxes[index].br().x, boxes[index].tl().y), cv::Scalar(255, 255, 255), -1);
+        //cv::rectangle在图像上绘制矩形
+        //绘制检测框
+        cv::rectangle(frame, //原图像
+                      boxes[index],//要绘制的矩形的位置和大小
+                      cv::Scalar(0, 0, 255), //矩形颜色
+                      2,//矩形的边框厚度
+                      8);//线条的类型
 
+        //在检测框上20像素位置绘制一个矩形 用来书写内容
+        cv::rectangle(frame,
+                      cv::Point(boxes[index].tl().x, boxes[index].tl().y - 20),
+                      cv::Point(boxes[index].br().x, boxes[index].tl().y),
+                      cv::Scalar(255, 255, 255),//矩形颜色设置位白色
+                      -1);  //矩形的边框厚度。当设置为 -1 时，表示矩形内部将被完全填充
+
+        //用来在上面绘制的矩形里写上检测到的类别
+        cv::putText(frame, class_names[idx], cv::Point(boxes[index].tl().x, boxes[index].tl().y - 10), cv::FONT_HERSHEY_SIMPLEX, .5, cv::Scalar(0, 0, 0));
     }
 
     //计时器读数结束
     float t = (cv::getTickCount() - start) / static_cast<float>(cv::getTickFrequency());
 
-    //在图像上添加文本
-    cv::putText(frame, cv::format("FPS: %.2f", 1.0 / t), cv::Point(20, 40), cv::FONT_HERSHEY_PLAIN, 2.0, cv::Scalar(255, 0, 0), 2, 8);
+    //在图像上添加文本 输出帧率
+    cv::putText(frame, cv::format("FPS: %.2f", 1.0 / t),
+                cv::Point(20, 40), //坐标(20, 40)表示文本将从图像上这个点的位置开始绘制。
+                cv::FONT_HERSHEY_PLAIN, //文本的字体类型
+                2.0,//文本的缩放因子。通过调整这个值，可以增大或减小文本的大小
+                cv::Scalar(255, 0, 0),//文本的颜色
+                2,//线条厚度
+                8);//线条的类型
 
 }
