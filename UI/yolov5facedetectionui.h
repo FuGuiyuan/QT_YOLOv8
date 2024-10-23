@@ -8,6 +8,8 @@
 #include <QCheckBox>
 #include <QDoubleSpinBox>
 #include <QLabel>
+
+#include "objectdetectorthread.h"
 class YOLOv5FaceDetectionUI:public QWidget
 {
     Q_OBJECT
@@ -22,6 +24,10 @@ public slots:
     void selectWeightFile();
 
     void selectConfigFile();
+
+    void runYoloDetection();
+
+    void showDetectedImage(cv::Mat frame);
 
 
 private:
@@ -42,6 +48,8 @@ private:
 
     QLabel* imgLabel{nullptr};
     QPushButton* runBtn{nullptr};
+
+    ObjectDetectorThread *workThread;
 };
 
 #endif // YOLOV5FACEDETECTIONUI_H

@@ -138,7 +138,7 @@ void dataSettings::dumpSettings()
     if(name ==DETECT_ALGO_TYPE::YOLOv5_DNN)
     {
         //写数据
-        cv::FileStorage fs("YOLOv5_detector_settings.yml",cv::FileStorage::READ);
+        cv::FileStorage fs("YOLOv5_detector_settings.yml",cv::FileStorage::WRITE);
         fs<<"weight_file"<<weight_file;
         fs<<"config_file"<< this->config_file;
         fs<<"t_score"<< this->t_score;

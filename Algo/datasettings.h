@@ -14,7 +14,7 @@ enum DETECT_ALGO_TYPE
 class dataSettings
 {
 public:
-    dataSettings();
+    dataSettings(DETECT_ALGO_TYPE Name);
 
     std::string getData_path() const;
     void setData_path(const std::string &newData_path);

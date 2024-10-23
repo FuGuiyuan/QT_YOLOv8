@@ -129,6 +129,15 @@ void YOLOv5FaceDetectionUI::initUI()
     connect(chooseWeightBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectWeightFile);
     connect(chooseConfigBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectConfigFile);
     connect(runBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::runYoloDetection);
+
+    dataSettings DS(DETECT_ALGO_TYPE::YOLOv5_DNN);
+    DS.loadSettings();
+    weightFilePath->setText(QString::fromStdString(DS.getWeight_file()));
+    configFilePath->setText(QString::fromStdString(DS.getConfig_file()));
+    scoreSpinBox->setValue(DS.getT_score());
+    configSpinBox->setValue(DS.getConf());
+    showFPSCheck->setChecked(DS.getShow_fps());
+    showScoreCheck->setChecked(DS.getShow_score());
 }
 
 void YOLOv5FaceDetectionUI::selectImg()
@@ -155,7 +164,7 @@ void YOLOv5FaceDetectionUI::selectImg()
 
 void YOLOv5FaceDetectionUI::selectWeightFile()
 {
-    QString weigthPath = QFileDialog::getOpenFileName(this, "选择模型权重文件", "C:/Users/15648/Desktop/QT/opencv/opencv_tutorial_data-master/opencv_tutorial_data-master/models/face_detector", tr("Weights(*.pb);"));
+    QString weigthPath = QFileDialog::getOpenFileName(this, "选择模型权重文件", "C:/Users/15648/Desktop/QT/opencv/opencv_tutorial_data-master/opencv_tutorial_data-master/models", tr("Weights(*.onnx);"));
     if(weigthPath.isEmpty())
     {
         qDebug()<<"weigthPath is empty...";
@@ -166,7 +175,7 @@ void YOLOv5FaceDetectionUI::selectWeightFile()
 
 void YOLOv5FaceDetectionUI::selectConfigFile()
 {
-    QString configPath = QFileDialog::getOpenFileName(this, "选择模型配置文件", "C:/Users/15648/Desktop/QT/opencv/opencv_tutorial_data-master/opencv_tutorial_data-master/models/face_detector", tr("Config(*.pbtxt);"));
+    QString configPath = QFileDialog::getOpenFileName(this, "选择模型配置文件", "C:/Users/15648/Desktop/QT/opencv/opencv_tutorial_data-master/opencv_tutorial_data-master/models", tr("Labels(*.txt);"));
     if(configPath.isEmpty())
     {
         qDebug()<<"configPath is empty...";
@@ -178,6 +187,9 @@ void YOLOv5FaceDetectionUI::selectConfigFile()
 //点击按钮 开始检测
 void YOLOv5FaceDetectionUI::runYoloDetection()
 {
+    //按钮设置不可用
+    runBtn->setEnabled(false);
+
     dataSettings DS(DETECT_ALGO_TYPE::YOLOv5_DNN);
     DS.setData_path(dataFilePath->text().toStdString());
     DS.setWeight_file(weightFilePath->text().toStdString());
@@ -188,6 +200,29 @@ void YOLOv5FaceDetectionUI::runYoloDetection()
     DS.setT_score(scoreSpinBox->value());
     DS.dumpSettings(); //记录到yml文件里
 
+    workThread = new ObjectDetectorThread(DS);
+    qRegisterMetaType<cv::Mat>("cv::Mat");
+    connect(workThread, SIGNAL(sendResult(cv::Mat)), this, SLOT(showDetectedImage(cv::Mat)));
+    connect(workThread, &ObjectDetectorThread::finished, workThread, &QObject::deleteLater);
+    this->workThread->start(); // callback
 
+}
 
+void YOLOv5FaceDetectionUI::showDetectedImage(cv::Mat frame)
+{
+    //如果返回空 说明结束了
+    if(frame.empty())
+    {
+        runBtn->setEnabled(true);
+        return;
+    }
+
+    cv::Mat image;
+    cv::cvtColor(frame, image, cv::COLOR_BGR2RGB);
+    QImage img = QImage(image.data, image.cols, image.rows, image.step, QImage::Format_RGB888);
+    img = img.scaled(QSize(800, 500), Qt::KeepAspectRatio);
+
+    QPixmap  pixmap;
+    pixmap = pixmap.fromImage(img);
+    this->imgLabel->setPixmap(pixmap);
 }

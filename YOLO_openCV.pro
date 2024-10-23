@@ -9,18 +9,22 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    Algo/ObjectDetectorFactory.cpp \
     Algo/datasettings.cpp \
     Algo/yolov5detector.cpp \
     UI/mainwidget.cpp \
+    UI/objectdetectorthread.cpp \
     UI/yolov5facedetectionui.cpp \
     main.cpp \
     widget.cpp
 
 HEADERS += \
     Algo/AlgoInterface.h \
+    Algo/ObjectDetectorFactory.h \
     Algo/datasettings.h \
     Algo/yolov5detector.h \
     UI/mainwidget.h \
+    UI/objectdetectorthread.h \
     UI/yolov5facedetectionui.h \
     widget.h
 
