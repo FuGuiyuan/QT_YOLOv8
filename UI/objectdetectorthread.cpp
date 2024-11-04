@@ -20,9 +20,22 @@ void ObjectDetectorThread::run()
     }
 
     //视频文件处理   就是处理多张图片 每处理一帧就发送一次信号
-
-
-
+    if(path.endsWith(".mp4"))
+    {
+        cv::VideoCapture capture(filePath);
+        cv::Mat frame;
+        //boxes.clear(); //每次用完后clear掉
+        while(true)
+        {
+            capture.read(frame);
+            if(frame.empty())
+            {
+                break;
+            }
+            detector->infer_frame(frame);
+            emit sendResult(frame);
+        }
+    }
 
 
     //最后结束发一张空

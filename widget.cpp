@@ -34,6 +34,10 @@ Widget::Widget(QWidget *parent)
     });
 
 
+    //主界面跳转到YOLOv8界面
+
+
+
 }
 
 Widget::~Widget()

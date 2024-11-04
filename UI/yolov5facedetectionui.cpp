@@ -131,7 +131,7 @@ void YOLOv5FaceDetectionUI::initUI()
     connect(runBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::runYoloDetection);
 
     dataSettings DS(DETECT_ALGO_TYPE::YOLOv5_DNN);
-    DS.loadSettings();
+    DS.loadSettings(); //如果有历史内容 直接加载
     weightFilePath->setText(QString::fromStdString(DS.getWeight_file()));
     configFilePath->setText(QString::fromStdString(DS.getConfig_file()));
     scoreSpinBox->setValue(DS.getT_score());
@@ -158,7 +158,17 @@ void YOLOv5FaceDetectionUI::selectImg()
     }
 
     //视频文件被选中
+    else if(videoFileBtn->isChecked())
+    {
+        QString videopath = QFileDialog::getOpenFileName(this,"选择视频",R"(D:\Video)",tr("Videos(*.mp4);"));
+        if(videopath.isEmpty())
+        {
+            qDebug()<<"video path is empty...";
+            return;
+        }
 
+        dataFilePath->setText(videopath);
+    }
 
 }
 

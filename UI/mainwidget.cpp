@@ -48,14 +48,3 @@ void MainWidget::initUI()
     connect(ToYolov5Btn,&QToolButton::clicked,this,&MainWidget::ToYolov5Widget);
     connect(ToYolov8Btn,&QToolButton::clicked,this,&MainWidget::ToYolov8Widget);
 }
-
-// void MainWidget::ToYolov5Widget()
-// {
-//     qDebug()<<"跳转到yolov5界面";
-//     //可以发送一个信号给主界面 主界面接收后就隐藏这个显示另一个界面
-// }
-
-// void MainWidget::ToYolov8Widget()
-// {
-//     qDebug()<<"跳转到yolov8界面";
-// }
