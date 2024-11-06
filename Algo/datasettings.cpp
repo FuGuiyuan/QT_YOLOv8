@@ -129,7 +129,23 @@ void dataSettings::loadSettings()
     }
 
     //YOLOv8。。。。
-
+    else if(name == DETECT_ALGO_TYPE::YOLOv8_DNN)
+    {
+        cv::FileStorage fs("YOLOv8_detector_settings.yml",cv::FileStorage::READ);
+        //如果文件没有打开
+        if(!fs.isOpened())
+        {
+            std::cout<<"could not open the file"<<std::endl;
+            return;
+        }
+        fs["weight_file"] >> weight_file;
+        fs["config_file"] >> config_file;
+        fs["t_score"] >> t_score;
+        fs["show_fps"] >> show_fps;
+        fs["show_score"] >> show_score;
+        //读完 关闭文件
+        fs.release();
+    }
 
 }
 
@@ -149,5 +165,16 @@ void dataSettings::dumpSettings()
     }
 
     //YOLOv8。。。。
-
+    else if(name ==DETECT_ALGO_TYPE::YOLOv8_DNN)
+    {
+        //写数据
+        cv::FileStorage fs("YOLOv8_detector_settings.yml",cv::FileStorage::WRITE);
+        fs<<"weight_file"<<weight_file;
+        fs<<"config_file"<< this->config_file;
+        fs<<"t_score"<< this->t_score;
+        fs<<"conf"<< this->conf;
+        fs<<"show_fps"<< this->show_fps;
+        fs<<"show_score"<< this->show_score;
+        fs.release();
+    }
 }

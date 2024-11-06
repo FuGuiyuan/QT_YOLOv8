@@ -1,0 +1,8 @@
+%YAML:1.0
+---
+weight_file: "C:/Users/15648/Desktop/QT/opencv/yolov8n.onnx"
+config_file: "C:/Users/15648/Desktop/QT/opencv/classes.txt"
+t_score: 5.0000000000000000e-01
+conf: 2.5000000000000000e-01
+show_fps: 1
+show_score: 1

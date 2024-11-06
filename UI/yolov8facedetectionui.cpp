@@ -1,6 +1,5 @@
-#include "yolov5facedetectionui.h"
-#include<QDebug>
-
+#include "yolov8facedetectionui.h"
+#include <QDebug>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -8,12 +7,13 @@
 #include <QFileDialog>
 #include "Algo/datasettings.h"
 
-YOLOv5FaceDetectionUI::YOLOv5FaceDetectionUI() {
-    qDebug()<<"YOLOv5FaceDetectionUI 构造函数";
+YOLOv8FaceDetectionUI::YOLOv8FaceDetectionUI()
+{
+    qDebug()<<"YOLOv8FaceDetectionUI 构造函数";
     initUI();
 }
 
-void YOLOv5FaceDetectionUI::initUI()
+void YOLOv8FaceDetectionUI::initUI()
 {
 
     imgFileBtn = new QRadioButton("图片文件");
@@ -21,16 +21,15 @@ void YOLOv5FaceDetectionUI::initUI()
     videoFileBtn = new QRadioButton("视频文件");
     dataFilePath = new QLineEdit();
     dataFilePath->setEnabled(false);
-    chooseImgBtn =new QPushButton("选择文件");
+    chooseImgBtn = new QPushButton("选择文件");
 
-    QGroupBox* dataBox = new QGroupBox("数据");
+    QGroupBox* dataBox=new QGroupBox("数据");
     QHBoxLayout* hbox1 = new QHBoxLayout;
     hbox1->addWidget(imgFileBtn);
     hbox1->addWidget(videoFileBtn);
     hbox1->addWidget(dataFilePath);
     hbox1->addWidget(chooseImgBtn);
     dataBox->setLayout(hbox1);
-
 
     weightFilePath = new QLineEdit();
     configFilePath = new QLineEdit();
@@ -61,10 +60,6 @@ void YOLOv5FaceDetectionUI::initUI()
     scoreSpinBox->setRange(0,1);
     scoreSpinBox->setSingleStep(0.01);
     scoreSpinBox->setValue(0.5);
-    configSpinBox = new QDoubleSpinBox();
-    configSpinBox->setRange(0,1);
-    configSpinBox->setSingleStep(0.01);
-    configSpinBox->setValue(0.5);
 
     QGroupBox* showBox = new QGroupBox("显示");
     QVBoxLayout* vbox3 = new QVBoxLayout();
@@ -72,16 +67,14 @@ void YOLOv5FaceDetectionUI::initUI()
     hbox3->addWidget(showFPSCheck);
     hbox3->addWidget(showScoreCheck);
 
-    QHBoxLayout* hbox6 = new QHBoxLayout;
-    hbox6->addWidget(new QLabel("置信:"));
-    hbox6->addWidget(configSpinBox);
+
     QHBoxLayout* hbox7 = new QHBoxLayout;
     hbox7->addWidget(new QLabel("得分:"));
     hbox7->addWidget(scoreSpinBox);
     vbox3->addLayout(hbox3);
-    vbox3->addLayout(hbox6);
     vbox3->addLayout(hbox7);
     showBox->setLayout(vbox3);
+
 
     runBtn = new QPushButton("运行");
     QHBoxLayout *hbox4 = new QHBoxLayout();
@@ -98,8 +91,6 @@ void YOLOv5FaceDetectionUI::initUI()
     vbox->addWidget(runWidget);
     //vbox->addStretch(1);
     showBtnWidget->setLayout(vbox);
-
-
 
     QPixmap  pixmap(":/resources/woman.png");
     imgLabel=new QLabel();
@@ -124,22 +115,24 @@ void YOLOv5FaceDetectionUI::initUI()
     hboxmain->addWidget(splitter);
     this->setLayout(hboxmain);
 
-    connect(chooseImgBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectImg);
-    connect(chooseWeightBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectWeightFile);
-    connect(chooseConfigBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::selectConfigFile);
-    connect(runBtn,&QPushButton::clicked,this,&YOLOv5FaceDetectionUI::runYoloDetection);
+    connect(chooseImgBtn,&QPushButton::clicked,this,&YOLOv8FaceDetectionUI::selectImg);
+    connect(chooseWeightBtn,&QPushButton::clicked,this,&YOLOv8FaceDetectionUI::selectWeightFile);
+    connect(chooseConfigBtn,&QPushButton::clicked,this,&YOLOv8FaceDetectionUI::selectConfigFile);
+    connect(runBtn,&QPushButton::clicked,this,&YOLOv8FaceDetectionUI::runYoloDetection);
 
-    dataSettings DS(DETECT_ALGO_TYPE::YOLOv5_DNN);
+
+    dataSettings DS(DETECT_ALGO_TYPE::YOLOv8_DNN);
     DS.loadSettings(); //如果有历史内容 直接加载
     weightFilePath->setText(QString::fromStdString(DS.getWeight_file()));
     configFilePath->setText(QString::fromStdString(DS.getConfig_file()));
     scoreSpinBox->setValue(DS.getT_score());
-    configSpinBox->setValue(DS.getConf());
+    //configSpinBox->setValue(DS.getConf());
     showFPSCheck->setChecked(DS.getShow_fps());
     showScoreCheck->setChecked(DS.getShow_score());
+
 }
 
-void YOLOv5FaceDetectionUI::selectImg()
+void YOLOv8FaceDetectionUI::selectImg()
 {
     //图片文件被选中
     qDebug()<<"select Image...";
@@ -168,12 +161,11 @@ void YOLOv5FaceDetectionUI::selectImg()
 
         dataFilePath->setText(videopath);
     }
-
 }
 
-void YOLOv5FaceDetectionUI::selectWeightFile()
+void YOLOv8FaceDetectionUI::selectWeightFile()
 {
-    QString weigthPath = QFileDialog::getOpenFileName(this, "选择模型权重文件", "C:/Users/15648/Desktop/QT/opencv/opencv_tutorial_data-master/opencv_tutorial_data-master/models", tr("Weights(*.onnx);"));
+    QString weigthPath = QFileDialog::getOpenFileName(this, "选择模型权重文件", "C:/Users/15648/Desktop/QT/opencv", tr("Weights(*.onnx);"));
     if(weigthPath.isEmpty())
     {
         qDebug()<<"weigthPath is empty...";
@@ -182,9 +174,9 @@ void YOLOv5FaceDetectionUI::selectWeightFile()
     weightFilePath->setText(weigthPath);
 }
 
-void YOLOv5FaceDetectionUI::selectConfigFile()
+void YOLOv8FaceDetectionUI::selectConfigFile()
 {
-    QString configPath = QFileDialog::getOpenFileName(this, "选择模型配置文件", "C:/Users/15648/Desktop/QT/opencv/opencv_tutorial_data-master/opencv_tutorial_data-master/models", tr("Labels(*.txt);"));
+    QString configPath = QFileDialog::getOpenFileName(this, "选择模型配置文件", "C:/Users/15648/Desktop/QT/opencv", tr("Labels(*.txt);"));
     if(configPath.isEmpty())
     {
         qDebug()<<"configPath is empty...";
@@ -193,31 +185,30 @@ void YOLOv5FaceDetectionUI::selectConfigFile()
     configFilePath->setText(configPath);
 }
 
-//点击按钮 开始检测
-void YOLOv5FaceDetectionUI::runYoloDetection()
+void YOLOv8FaceDetectionUI::runYoloDetection()
 {
     //按钮设置不可用
     runBtn->setEnabled(false);
 
-    dataSettings DS(DETECT_ALGO_TYPE::YOLOv5_DNN);
+    dataSettings DS(DETECT_ALGO_TYPE::YOLOv8_DNN);
     DS.setData_path(dataFilePath->text().toStdString());
     DS.setWeight_file(weightFilePath->text().toStdString());
     DS.setConfig_file(configFilePath->text().toStdString());
     DS.setShow_fps(showFPSCheck->isChecked());
     DS.setShow_score(showScoreCheck->isChecked());
-    DS.setConf(configSpinBox->value());
+
     DS.setT_score(scoreSpinBox->value());
     DS.dumpSettings(); //记录到yml文件里
 
     workThread = new ObjectDetectorThread(DS);
     qRegisterMetaType<cv::Mat>("cv::Mat");
     connect(workThread, SIGNAL(sendResult(cv::Mat)), this, SLOT(showDetectedImage(cv::Mat)));
+    //Qt 的事件系统将确保在适当的时候删除这个对象，通常发生在当前事件处理完毕后。
     connect(workThread, &ObjectDetectorThread::finished, workThread, &QObject::deleteLater);
     this->workThread->start(); // callback
-
 }
 
-void YOLOv5FaceDetectionUI::showDetectedImage(cv::Mat frame)
+void YOLOv8FaceDetectionUI::showDetectedImage(cv::Mat frame)
 {
     //如果返回空 说明结束了
     if(frame.empty())

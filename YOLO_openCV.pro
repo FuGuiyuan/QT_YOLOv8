@@ -12,9 +12,11 @@ SOURCES += \
     Algo/ObjectDetectorFactory.cpp \
     Algo/datasettings.cpp \
     Algo/yolov5detector.cpp \
+    Algo/yolov8detector.cpp \
     UI/mainwidget.cpp \
     UI/objectdetectorthread.cpp \
     UI/yolov5facedetectionui.cpp \
+    UI/yolov8facedetectionui.cpp \
     main.cpp \
     widget.cpp
 
@@ -23,9 +25,11 @@ HEADERS += \
     Algo/ObjectDetectorFactory.h \
     Algo/datasettings.h \
     Algo/yolov5detector.h \
+    Algo/yolov8detector.h \
     UI/mainwidget.h \
     UI/objectdetectorthread.h \
     UI/yolov5facedetectionui.h \
+    UI/yolov8facedetectionui.h \
     widget.h
 
 FORMS += \
